@@ -105,25 +105,23 @@
 			
 			}
 
-		// the main render function, called 30 times a second
+			// the main render function, called 30 times a second
 
 			function render() {
 
 				// iterate through every particle
 				for(var i=0; i<particles.length; i++) {
-					
+		
 					particle = particles[i]; 
-					
-					// and move it back or forward dependent on the mouseY
-					// position. 
+		
+					// and move it forward dependent on the mouseY position. 
 					particle.position.z +=  mouseY * 0.1;
-					
-					// if we're too far forward bring it back, and vice versa
-					if(particle.position.z<-1000) particle.position.z+=2000; 
-					else if(particle.position.z>1000) particle.position.z-=2000; 
-					
+		
+					// if the particle is too close move it to the back
+					if(particle.position.z>1000) particle.position.z-=2000; 
+		
 				}
-				
+	
 				// and render the scene from the perspective of the camera
 				renderer.render( scene, camera );
 
