@@ -10,8 +10,8 @@
 				margin: 0px;
 				overflow: hidden;
 			}
-
 		</style>
+		
 	</head>
 	<body>
 
@@ -26,21 +26,15 @@
 				mouseX = 0, mouseY = 0,
 
 			// an array to store our particles in
-				particles = [],
-
-			// store half the width and height of the window so we can 
-			// get the mouse position relative to the centre.
-				HALF_WIDTH = window.innerWidth / 2,
-				HALF_HEIGHT = window.innerHeight / 2;
+				particles = [];
 
 			// let's get going! 
 			init();
 
-
 			function init() {
 
 				// Camera params : 
-				// field of view, aspect ratio for render output, nearfield, and farfield. 
+				// field of view, aspect ratio for render output, near and far clipping plane. 
 				camera = new THREE.Camera(80, window.innerWidth / window.innerHeight, 1, 4000 );
 	
 				// move the camera backwards so we can see stuff! 
@@ -59,23 +53,21 @@
 				// the renderer's canvas domElement is added to the body
 				document.body.appendChild( renderer.domElement );
 
-				
 				// there isn't a built in circle particle renderer 
 				// so we have to define our own one. 
 
 				var particleRender = function ( context ) {
+					
 					// we get passed a reference to the canvas context
 					context.beginPath();
 					// and we just have to draw our shape at 0,0 - in this
 					// case an arc from 0 to 2Pi radians or 360º - a full circle!
 					context.arc( 0, 0, 1, 0,  Math.PI * 2, true );
 					context.fill();
-
-				}
+				};
 
 				var particle, material; 
 
-	
 				// we're gonna move from z position -1000 (far away) 
 				// to 1000 (where the camera is) and add a random particle at every pos. 
 				for ( var zpos= -1000; zpos < 1000; zpos+=20 ) {
@@ -105,7 +97,7 @@
 
 			
 				// add the mouse move listener
-				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'mousemove', onMouseMove, false );
 				
 				// render 30 times a second (should also look 
 				// at requestAnimationFrame) 
@@ -113,7 +105,6 @@
 			
 			}
 
-		
 		// the main render function, called 30 times a second
 
 			function render() {
@@ -125,7 +116,7 @@
 					
 					// and move it back or forward dependent on the mouseY
 					// position. 
-					particle.position.z +=  mouseY * -0.5;
+					particle.position.z +=  mouseY * 0.1;
 					
 					// if we're too far forward bring it back, and vice versa
 					if(particle.position.z<-1000) particle.position.z+=2000; 
@@ -137,18 +128,13 @@
 				renderer.render( scene, camera );
 
 			}
-			
-			
-			//
-
-			function onDocumentMouseMove( event ) {
-				// store the mouseX and mouseY relative to the 
-				// centre of the screen
-				mouseX = event.clientX - HALF_WIDTH;
-				mouseY = event.clientY - HALF_HEIGHT;
-			}
-
 		
+		// called when the mouse moves
+			function onMouseMove( event ) {
+				// store the mouseX and mouseY position 
+				mouseX = event.clientX;
+				mouseY = event.clientY;
+			}
 
 		</script>
 	</body>
