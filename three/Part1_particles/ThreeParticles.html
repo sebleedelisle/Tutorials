@@ -53,19 +53,32 @@
 				// the renderer's canvas domElement is added to the body
 				document.body.appendChild( renderer.domElement );
 
-				// there isn't a built in circle particle renderer 
-				// so we have to define our own one. 
+				makeParticles(); 
+			
+				// add the mouse move listener
+				document.addEventListener( 'mousemove', onMouseMove, false );
+				
+				// render 30 times a second (should also look 
+				// at requestAnimationFrame) 
+				setInterval(update,1000/30); 
+			
+			}
 
-				var particleRender = function ( context ) {
-					
-					// we get passed a reference to the canvas context
-					context.beginPath();
-					// and we just have to draw our shape at 0,0 - in this
-					// case an arc from 0 to 2Pi radians or 360º - a full circle!
-					context.arc( 0, 0, 1, 0,  Math.PI * 2, true );
-					context.fill();
-				};
+			// the main update function, called 30 times a second
 
+			function update() {
+
+				updateParticles();
+
+				// and render the scene from the perspective of the camera
+				renderer.render( scene, camera );
+
+			}
+
+			// creates a random field of Particle objects
+			
+			function makeParticles() { 
+				
 				var particle, material; 
 
 				// we're gonna move from z position -1000 (far away) 
@@ -94,21 +107,27 @@
 					// and to the array of particles. 
 					particles.push(particle); 
 				}
-
-			
-				// add the mouse move listener
-				document.addEventListener( 'mousemove', onMouseMove, false );
 				
-				// render 30 times a second (should also look 
-				// at requestAnimationFrame) 
-				setInterval(render,1000/30); 
-			
 			}
+			
+			// there isn't a built in circle particle renderer 
+			// so we have to define our own. 
 
-			// the main render function, called 30 times a second
+			function particleRender( context ) {
+				
+				// we get passed a reference to the canvas context
+				context.beginPath();
+				// and we just have to draw our shape at 0,0 - in this
+				// case an arc from 0 to 2Pi radians or 360º - a full circle!
+				context.arc( 0, 0, 1, 0,  Math.PI * 2, true );
+				context.fill();
+			};
 
-			function render() {
-
+			
+			// moves all the particles dependent on mouse position
+			
+			function updateParticles() { 
+				
 				// iterate through every particle
 				for(var i=0; i<particles.length; i++) {
 		
@@ -122,9 +141,6 @@
 		
 				}
 	
-				// and render the scene from the perspective of the camera
-				renderer.render( scene, camera );
-
 			}
 		
 		// called when the mouse moves
