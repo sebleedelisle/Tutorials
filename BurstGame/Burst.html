@@ -1,0 +1,239 @@
+<html lang="en">
+<meta charset="utf-8">
+
+	<head>
+		<title>Fish bursting game</title>
+
+		<style type="text/css">
+			body {
+			
+				margin: 0px;
+				overflow: hidden;
+				width : 100%;
+				// need this otherwise container will hijack all clicks/touches!
+				-webkit-transform: translateZ(-1000px);
+				-webkit-transform-style: preserve-3d; 
+			
+			}
+			.parallax {
+				position : absolute;
+				display : block; 
+				width : 256px; 
+				height : 384px; 
+				-webkit-transform-origin : 0px 0px;
+			}
+			
+			.container {
+				
+				position : absolute; 
+				display : block; 
+				-webkit-transform-style: preserve-3d;
+				-webkit-transform : translateZ(0px);
+				overflow : hidden;
+				pointer-events :none;
+				
+				
+			}
+		
+		</style>
+	</head>
+	<body>	
+
+		<script src="js/Fish.js"></script>
+		<script src="js/Particles.js"></script>
+		<script>
+		
+			
+			// DOM elements
+			var container =	document.createElement('div'),
+
+				layer1 = document.createElement('div'),
+				layer2 = document.createElement('div'),
+
+			// screen size variables
+				SCREEN_WIDTH = 1024,
+				SCREEN_HEIGHT = 768,
+				HALF_WIDTH = SCREEN_WIDTH / 2,
+				HALF_HEIGHT = SCREEN_HEIGHT / 2,
+
+			// fish variables
+				fishes = [],
+				spareFishes = [],
+	
+				counter = 0, 
+				burstSound, 
+ 
+			// the particle emitter
+			 	emitter = new Emitter(container); 
+	
+		
+			initSounds(); 	
+			
+			// set up the CSS for the DOM elements
+			layer1.className = "parallax"; 
+			layer1.style.background = 'url(img/parallaxBack.jpg)'; 
+			document.body.appendChild(layer1); 
+
+			layer2.className = "parallax"; 
+			layer2.style.background = 'url(img/parallaxFront.png) transparent'; 
+			document.body.appendChild(layer2); 
+
+			container.className = "container"; 
+			container.style.webkitPerspective= "400";
+			    	container.style.webkitPerspectiveOrigin= HALF_WIDTH+"px "+HALF_HEIGHT+"px";
+			container.style.width = SCREEN_WIDTH; 
+			container.style.height = SCREEN_HEIGHT; 
+
+			document.body.appendChild(container); 
+			window.addEventListener("load", init); 
+				
+			function init() {
+						
+				initMouseListeners(); 
+				setInterval(gameLoop, 1000/60); 
+			}
+			
+			function gameLoop() 
+			{
+
+				// every 20 frames, make a new fish
+				if(counter++%20==0)	makeFish();	
+	
+				// update the parallax layers
+				layer1.style.webkitTransform = "translate3d(0px, "+(-768 +((counter*5)%768))+"px, -999px) scale(4)"; 				
+				layer2.style.webkitTransform  = "translate3d(0px, "+(-768 +((counter*10)%768))+"px, -998px) scale(4)"; 
+	 
+			  	// iteratate through each fish
+				for (i=0; i<fishes.length; i++) {
+					var fish = fishes[i]; 
+					if(!fish.enabled) continue; 
+		
+					// update the fishes position properties
+					fish.update();
+		
+					// and then update the visible object for that fish
+					fish.render(); 
+	
+					// if the fish is way off the top of the screen, then 
+					// remove it. For the finished game you would probably 
+					// add some kind of score penalty at this point. 
+					if(fish.posY <-200) removeFish(fish); 
+		
+				}
+
+				// then update all the particles. 
+				emitter.update(); 
+
+			}
+			
+			function makeFish() {
+				var fish;
+				
+				// create a new fish in the bottom middle of the stage
+				if(spareFishes.length>0) {
+					// if one is already in the spare array, recycle it
+					fish = spareFishes.pop(); 	
+					fish.enabled = true; 
+					fish.domElement.style.visibility = "visible"; 
+				} else {
+					// otherwise make a new one
+					// Work out the fishimage URL 
+					var fishImageURL = "img/orangefish0"+((fishes.length % 4) + 1)+".png"; 
+					// and then make a new fish object
+					fish = new Fish(0, 0, 0, fishImageURL, 128, 128); 
+					// add it into the array of fishes
+					fishes.push(fish); 
+	
+					// then add touch and mousedown events to the fish. 
+					fish.domElement.addEventListener("mouseover", fishMouseOver, true); 
+					fish.domElement.addEventListener("touchstart", fishTouched, true); 
+	
+					container.appendChild(fish.domElement);
+
+				}
+				
+				fish.posX = HALF_WIDTH + randomRange(-250,250); 
+				fish.posY = SCREEN_HEIGHT+100;
+				fish.posZ = randomRange(-250,250);
+
+				// give it a random x and y velocity
+				fish.velX = randomRange(-1,1);
+				fish.velY = randomRange(-1,-2);
+				fish.velZ = randomRange(-1,1);
+
+				fish.size = 1;
+				fish.gravity = -0.05; 
+		
+			}
+			
+			function removeFish(fish) {
+				fish.enabled = false; 
+				fish.domElement.style.visibility = "hidden"; 
+				spareFishes.push(fish);
+			}
+	
+			function fishMouseOver(event) {
+				event.preventDefault(); 
+				var fish = getFishFromElement(event.target); 
+				if(fish) explodeFish(fish); 
+			}
+
+			function fishTouched(event) {
+				event.preventDefault(); 
+				for(var j=0; j<event.changedTouches.length; j++) {
+					var fish = getFishFromElement(event.target); 
+					if(fish) explodeFish(fish); 
+				}
+			}
+	
+			function getFishFromElement(domElement) {
+				for(var i=0; i<fishes.length;i++) {
+					if(fishes[i].domElement == domElement) return fishes[i]; 
+				}
+				return false; 
+			}	
+
+			function explodeFish(fish) {
+				playBurst(); 
+				emitter.makeExplosion(fish.posX, fish.posY, fish.posZ); 
+				removeFish(fish); 
+	
+			}
+				
+			function initMouseListeners() {
+				document.addEventListener('mousemove', preventDefault, false);
+				document.addEventListener( 'mousedown', preventDefault, false );
+				document.addEventListener( 'mouseup', preventDefault, false );
+				document.addEventListener( 'touchstart', preventDefault, false );
+				document.addEventListener( 'touchmove', preventDefault, false );
+				document.addEventListener( 'touchend', preventDefault, false );
+			}
+
+			function preventDefault(event) {
+				event.preventDefault(); 
+			}
+			
+			function initSounds() {
+				burstSound = new Audio("sounds/burstsml2.aif");	
+				burstSound.load();
+				// you have to play the sound to make sure it's loaded, otherwise you get 
+				// a glitch the first time you play it
+				burstSound.volume = 0; 
+				burstSound.play(); 
+			
+			}
+			
+			function playBurst() { 
+				burstSound.volume = 1; 
+				burstSound.play(); 
+			}
+			
+			function randomRange(min, max){
+				return (Math.random()*(max-min))+min; 
+			}
+			
+	
+
+		</script>
+	</body>
+</html>
