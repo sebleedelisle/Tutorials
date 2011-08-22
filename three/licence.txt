@@ -1,5 +1,3 @@
-This is the github repo for various tutorials that will appear on creativejs.com and sebleedelisle.com. They are all licensed under a BSD license. 
-
 Copyright (c)2010-2011, Seb Lee-Delisle, sebleedelisle.com
 All rights reserved.
 
