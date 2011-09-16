@@ -19,6 +19,8 @@ function Emitter(domContainer){
 	
 	this.removeParticle = function(particle) {
 		particle.domElement.style.visibility = "hidden"; 
+		particle.enabled = false; 
+		spareParticles.push(particle); 
 	};
 	
 	this.makeExplosion = function(xpos, ypos, zpos){
@@ -38,7 +40,7 @@ function Emitter(domContainer){
 			particle.yVel *= 40/speed;
 			particle.zVel *= 40/speed;
 			
-			particle.scale = 4; 
+			particle.size = 1.5; 
 		
 			particle.update(); 
 			
