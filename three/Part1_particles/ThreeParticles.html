@@ -35,7 +35,7 @@
 
 				// Camera params : 
 				// field of view, aspect ratio for render output, near and far clipping plane. 
-				camera = new THREE.Camera(80, window.innerWidth / window.innerHeight, 1, 4000 );
+				camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 1, 4000 );
 	
 				// move the camera backwards so we can see stuff! 
 				// default position is 0,0,0. 
@@ -43,6 +43,9 @@
 
 				// the scene contains all the 3D object data
 				scene = new THREE.Scene();
+				
+				// camera needs to go in the scene 
+				scene.add(camera);
 	
 				// and the CanvasRenderer figures out what the 
 				// stuff in the scene looks like and draws it!
@@ -102,7 +105,7 @@
 					particle.scale.x = particle.scale.y = 10;
 		
 					// add it to the scene
-					scene.addObject( particle );
+					scene.add( particle );
 		
 					// and to the array of particles. 
 					particles.push(particle); 
